@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Shalom Pro — Professional AV Control & DSP Programming</title>
+<meta name="description" content="Independent programming for AMX, Crestron, Extron, Q-SYS, Biamp, Bose and ClearOne. Control systems, audio DSP, touch panels and custom integrations." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#07111F;
+    --bg-2:#0B1730;
+    --panel:rgba(16,32,58,.78);
+    --panel-2:rgba(21,42,76,.84);
+    --glass:rgba(255,255,255,.075);
+    --glass-2:rgba(255,255,255,.105);
+    --line:rgba(151,184,255,.18);
+    --line-bright:rgba(151,184,255,.34);
+    --text:#F4F8FF;
+    --muted:#A9B9D2;
+    --muted-2:#7890B2;
+    --signal:#43D8FF;
+    --blue:#3D8BFF;
+    --purple:#8B5CF6;
+    --pink:#FF4FA3;
+    --orange:#FFB347;
+    --green:#56F0A5;
+    --red:#FF6B7A;
+    --signal-soft:rgba(67,216,255,0.13);
+    --display:"Space Grotesk",sans-serif;
+    --body:"Inter",sans-serif;
+    --mono:"JetBrains Mono",monospace;
+    --maxw:1180px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    background-image:
+      radial-gradient(circle at 15% 8%,rgba(67,216,255,.22),transparent 28%),
+      radial-gradient(circle at 84% 12%,rgba(139,92,246,.25),transparent 30%),
+      radial-gradient(circle at 70% 72%,rgba(255,79,163,.15),transparent 32%),
+      linear-gradient(rgba(255,255,255,0.035) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(255,255,255,0.035) 1px,transparent 1px),
+      linear-gradient(180deg,#07111F 0%,#0B1730 48%,#081020 100%);
+    background-size:auto,auto,auto,64px 64px,64px 64px,auto;
+    background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+    background:
+      linear-gradient(120deg,rgba(67,216,255,.07),transparent 24%,rgba(255,179,71,.07) 54%,transparent 74%),
+      radial-gradient(circle at 50% 0%,rgba(255,255,255,.08),transparent 42%);
+    mix-blend-mode:screen;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono)}
+  .eyebrow{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--signal);display:inline-flex;align-items:center;gap:8px;
+  }
+  .eyebrow::after{content:"";width:54px;height:1px;background:linear-gradient(90deg,var(--signal),transparent)}
+  .eyebrow .slash{color:var(--pink)}
+
+  /* ---------- NAV ---------- */
+  header.nav{
+    position:sticky;top:0;z-index:60;
+    backdrop-filter:blur(18px);
+    background:rgba(7,17,31,0.78);
+    border-bottom:1px solid var(--line);
+    box-shadow:0 18px 40px rgba(0,0,0,.22);
+  }
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .brand{display:flex;align-items:center;gap:12px;font-family:var(--display)}
+  .brand .dot{
+    width:12px;height:12px;border-radius:50%;
+    background:conic-gradient(from 180deg,var(--signal),var(--purple),var(--pink),var(--orange),var(--signal));
+    box-shadow:0 0 18px rgba(67,216,255,.8),0 0 34px rgba(139,92,246,.35);
+    animation:led 2.4s ease-in-out infinite;
+  }
+  .brand .name{font-weight:800;letter-spacing:.04em;font-size:1.06rem}
+  .brand .name b{background:linear-gradient(90deg,var(--signal),var(--purple),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:800}
+  .nav-links{display:flex;align-items:center;gap:28px}
+  .nav-links a{font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;color:var(--muted);transition:color .18s,transform .18s}
+  .nav-links a:hover{color:var(--text);transform:translateY(-1px)}
+  .btn{
+    font-family:var(--mono);font-size:.78rem;letter-spacing:.04em;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 20px;border-radius:999px;cursor:pointer;position:relative;overflow:hidden;
+    transition:transform .16s,box-shadow .18s,border-color .18s,background .18s;
+  }
+  .btn-primary{
+    color:#06111f;font-weight:700;border:1px solid rgba(255,255,255,.22);
+    background:linear-gradient(135deg,var(--signal),var(--green) 42%,var(--orange));
+    box-shadow:0 10px 28px rgba(67,216,255,.22),inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 34px rgba(67,216,255,.32)}
+  .btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--line-bright);box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .btn-ghost:hover{border-color:var(--signal);box-shadow:0 12px 30px rgba(67,216,255,.16);color:#fff}
+  .nav .btn-primary{padding:9px 17px}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:88px 0 64px;position:relative}
+  .hero::after{
+    content:"";position:absolute;right:-120px;top:80px;width:360px;height:360px;border-radius:50%;
+    background:radial-gradient(circle,rgba(255,79,163,.22),transparent 65%);filter:blur(6px);pointer-events:none;
+  }
+  .hero-grid{display:grid;grid-template-columns:1.02fr 1fr;gap:50px;align-items:center}
+  .hero h1{
+    font-family:var(--display);font-weight:800;font-size:clamp(2.45rem,5.25vw,4.35rem);line-height:1.02;letter-spacing:-.035em;margin:20px 0 22px;
+  }
+  .hero h1 .hl{background:linear-gradient(90deg,var(--signal),var(--green),var(--orange),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p.sub{font-size:1.08rem;color:var(--muted);max-width:39ch;margin-bottom:31px}
+  .hero-cta{display:flex;gap:14px;flex-wrap:wrap}
+  .hero-meta{margin-top:34px;display:flex;gap:12px;flex-wrap:wrap;font-family:var(--mono);font-size:.73rem;color:#DCEBFF;letter-spacing:.04em}
+  .hero-meta span{
+    display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;
+    background:rgba(255,255,255,.06);border:1px solid var(--line);backdrop-filter:blur(10px);
+  }
+  .hero-meta i{width:7px;height:7px;border-radius:50%;background:var(--green);font-style:normal;box-shadow:0 0 10px var(--green)}
+
+  /* signal-flow diagram */
+  .diagram-frame{
+    position:relative;border:1px solid var(--line-bright);border-radius:26px;
+    background:
+      radial-gradient(circle at 22% 16%,rgba(67,216,255,.16),transparent 32%),
+      radial-gradient(circle at 82% 78%,rgba(255,79,163,.12),transparent 34%),
+      linear-gradient(180deg,rgba(255,255,255,.10),rgba(255,255,255,.04));
+    padding:18px;box-shadow:0 38px 90px -42px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.12);
+    backdrop-filter:blur(18px);
+  }
+  .diagram-frame::before{
+    content:"signal-flow.map";position:absolute;top:-10px;left:22px;font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;
+    color:#CDEEFF;background:#07111F;padding:0 10px;border-radius:999px;
+  }
+  .diagram{width:100%;height:auto;display:block;filter:drop-shadow(0 20px 22px rgba(0,0,0,.22))}
+  .node-box{fill:rgba(18,38,72,.95);stroke:rgba(144,191,255,.52);stroke-width:1.2;rx:8}
+  .proc-box{fill:#12253f;stroke:var(--signal);stroke-width:1.5}
+  .conn{fill:none;stroke:rgba(144,191,255,.56);stroke-width:1.5}
+  .chip-label{font-family:var(--mono);font-size:12px;fill:var(--text);font-weight:600}
+  .chip-sub{font-family:var(--mono);font-size:8.5px;fill:#9DB6D5;letter-spacing:.06em}
+  .out-label{font-family:var(--mono);font-size:11px;fill:#D2E8FF}
+  .proc-title{font-family:"Space Grotesk",sans-serif;font-size:15px;font-weight:800;fill:var(--text)}
+  .proc-sub{font-family:var(--mono);font-size:8px;fill:var(--green);letter-spacing:.14em}
+  .led{fill:var(--signal)}
+  .led-amber{fill:var(--orange)}
+  .pulse{fill:var(--green);filter:drop-shadow(0 0 5px rgba(86,240,165,.9))}
+
+  @keyframes led{0%,100%{transform:scale(1);opacity:.9}50%{transform:scale(1.16);opacity:1}}
+  .svg-led{animation:svgled 2.2s ease-in-out infinite}.svg-led.a2{animation-delay:.5s}.svg-led.a3{animation-delay:1s}.svg-led.a4{animation-delay:1.5s}
+  @keyframes svgled{0%,100%{opacity:.35}50%{opacity:1}}.amber-led{animation:svgled 1.3s ease-in-out infinite}
+
+  /* ---------- TICKER ---------- */
+  .ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(255,255,255,.045);overflow:hidden;padding:13px 0;margin-top:10px;backdrop-filter:blur(12px)}
+  .ticker-track{display:flex;gap:42px;white-space:nowrap;width:max-content;animation:scroll 25s linear infinite;font-family:var(--mono);font-size:.82rem;letter-spacing:.08em;color:var(--muted)}
+  .ticker-track span{display:flex;align-items:center;gap:42px}.ticker-track b{color:#fff;font-weight:600}.ticker-track em{color:var(--orange);font-style:normal}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* ---------- SECTIONS ---------- */
+  .section{padding:92px 0;position:relative}
+  .sec-head{margin-bottom:46px;max-width:680px}
+  .sec-head h2{font-family:var(--display);font-weight:750;font-size:clamp(1.75rem,3.4vw,2.8rem);letter-spacing:-.022em;margin:14px 0 14px;line-height:1.07}
+  .sec-head p{color:var(--muted);font-size:1.02rem}
+
+  /* platforms / patch bay */
+  .patch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  .patch{
+    border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.045));
+    padding:22px 19px 20px;position:relative;transition:border-color .22s,transform .22s,box-shadow .22s;background-clip:padding-box;overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .patch::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:linear-gradient(90deg,var(--signal),var(--blue),var(--purple));opacity:.95}
+  .patch:nth-child(2)::before{background:linear-gradient(90deg,var(--blue),var(--purple),var(--pink))}
+  .patch:nth-child(3)::before{background:linear-gradient(90deg,var(--pink),var(--orange))}
+  .patch:nth-child(4)::before{background:linear-gradient(90deg,var(--green),var(--signal))}
+  .patch:nth-child(5)::before{background:linear-gradient(90deg,var(--orange),var(--green))}
+  .patch:nth-child(6)::before{background:linear-gradient(90deg,var(--purple),var(--signal))}
+  .patch:nth-child(7)::before{background:linear-gradient(90deg,var(--red),var(--orange))}
+  .patch:hover{border-color:rgba(255,255,255,.38);transform:translateY(-5px);box-shadow:0 24px 60px rgba(0,0,0,.24),0 0 0 1px rgba(255,255,255,.06)}
+  .patch .jack{position:absolute;top:18px;right:18px;width:10px;height:10px;border-radius:50%;background:var(--line-bright)}
+  .patch:hover .jack{background:var(--green);box-shadow:0 0 16px var(--green)}
+  .patch h3{font-family:var(--display);font-weight:750;font-size:1.18rem;margin-bottom:5px}
+  .patch .env{font-family:var(--mono);font-size:.68rem;letter-spacing:.05em;color:var(--signal);text-transform:uppercase;margin-bottom:12px;display:block}
+  .patch p{font-size:.86rem;color:var(--muted);line-height:1.55}
+  .patch.custom{border-color:rgba(255,179,71,.28);background:linear-gradient(180deg,rgba(255,179,71,.11),rgba(255,255,255,.045))}
+  .patch.custom::before{background:linear-gradient(90deg,var(--orange),var(--pink),var(--purple))}.patch.custom .env{color:var(--orange)}.patch.custom:hover .jack{background:var(--orange);box-shadow:0 0 16px var(--orange)}
+
+  /* services */
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .svc{border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.04));padding:25px 23px;transition:border-color .2s,transform .2s,box-shadow .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .svc:hover{border-color:rgba(255,255,255,.34);transform:translateY(-4px);box-shadow:0 24px 50px rgba(0,0,0,.2)}
+  .svc .ic{width:46px;height:46px;border-radius:14px;margin-bottom:16px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(67,216,255,.22),rgba(139,92,246,.18));border:1px solid rgba(255,255,255,.16);box-shadow:0 12px 28px rgba(67,216,255,.12)}
+  .svc:nth-child(2) .ic{background:linear-gradient(135deg,rgba(86,240,165,.22),rgba(67,216,255,.14))}
+  .svc:nth-child(3) .ic{background:linear-gradient(135deg,rgba(255,79,163,.22),rgba(139,92,246,.16))}
+  .svc:nth-child(4) .ic{background:linear-gradient(135deg,rgba(255,179,71,.24),rgba(86,240,165,.14))}
+  .svc:nth-child(5) .ic{background:linear-gradient(135deg,rgba(139,92,246,.24),rgba(67,216,255,.14))}
+  .svc:nth-child(6) .ic{background:linear-gradient(135deg,rgba(255,107,122,.20),rgba(255,179,71,.16))}
+  .svc .ic svg{width:22px;height:22px;stroke:#EAF7FF;fill:none;stroke-width:1.7}.svc h3{font-family:var(--display);font-weight:700;font-size:1.12rem;margin-bottom:8px}.svc p{font-size:.9rem;color:var(--muted)}
+
+  /* process */
+  .proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .step{padding:26px 22px;border:1px solid var(--line);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+  .step::before{content:"";position:absolute;left:0;top:0;width:100%;height:3px;background:linear-gradient(90deg,var(--signal),var(--green),var(--orange),var(--pink))}
+  .step .num{font-family:var(--mono);font-size:.78rem;color:var(--signal);letter-spacing:.1em;margin-bottom:14px;display:block}
+  .step h3{font-family:var(--display);font-weight:700;font-size:1.12rem;margin-bottom:8px}.step p{font-size:.88rem;color:var(--muted);max-width:24ch}
+
+  /* why */
+  .why-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:50px;align-items:start}
+  .why-list{display:flex;flex-direction:column;gap:2px}.why-item{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--line)}.why-item:last-child{border-bottom:none}
+  .why-item .k{font-family:var(--mono);font-size:.74rem;color:var(--green);flex:0 0 34px;padding-top:3px}.why-item h3{font-family:var(--display);font-weight:700;font-size:1.05rem;margin-bottom:4px}.why-item p{font-size:.9rem;color:var(--muted)}
+  .why-panel{border:1px solid var(--line-bright);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.04));padding:30px;position:relative;box-shadow:0 30px 70px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08)}
+  .why-panel .tag{position:absolute;top:-10px;left:24px;font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;color:#DFF6FF;background:#07111F;padding:0 10px;border-radius:999px}.code-line{font-family:var(--mono);font-size:.78rem;line-height:1.9;color:var(--muted)}.code-line .c{color:var(--muted-2)}.code-line .kw{color:var(--pink)}.code-line .str{color:var(--orange)}.code-line .fn{color:#fff}
+
+  /* contact */
+  .contact{border:1px solid rgba(255,255,255,.24);border-radius:26px;background:radial-gradient(110% 130% at 100% 0%,rgba(67,216,255,.18),transparent 48%),radial-gradient(90% 120% at 0% 100%,rgba(255,79,163,.13),transparent 48%),linear-gradient(180deg,rgba(255,255,255,.105),rgba(255,255,255,.045));padding:56px 50px;display:grid;grid-template-columns:1.1fr 1fr;gap:44px;align-items:center;box-shadow:0 34px 90px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.12)}
+  .contact h2{font-family:var(--display);font-weight:750;font-size:clamp(1.75rem,3.2vw,2.6rem);letter-spacing:-.022em;line-height:1.1;margin:12px 0 16px}.contact p{color:var(--muted);margin-bottom:26px;max-width:40ch}.contact-actions{display:flex;flex-direction:column;gap:14px}
+  .field{border:1px solid var(--line);border-radius:14px;background:rgba(7,17,31,.56);padding:15px 17px;display:flex;align-items:center;justify-content:space-between;gap:18px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+  .field .lab{font-family:var(--mono);font-size:.68rem;color:var(--muted-2);letter-spacing:.08em;text-transform:uppercase}.field .val{font-family:var(--mono);font-size:.9rem;color:var(--text);text-align:right}.field a.val:hover{color:var(--signal)}.contact .btn-primary{justify-content:center;padding:14px}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:46px 0 40px;margin-top:10px;background:rgba(0,0,0,.14)}.foot-grid{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap;align-items:flex-start}.foot-brand .name{font-family:var(--display);font-weight:800;font-size:1.05rem}.foot-brand .name b{background:linear-gradient(90deg,var(--signal),var(--pink));-webkit-background-clip:text;background-clip:text;color:transparent}.foot-brand p{font-size:.84rem;color:var(--muted-2);margin-top:8px;max-width:34ch;line-height:1.6}.foot-cols{display:flex;gap:64px;flex-wrap:wrap}.foot-col h4{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:14px}.foot-col a{display:block;font-size:.88rem;color:var(--muted);margin-bottom:9px;transition:color .15s}.foot-col a:hover{color:var(--signal)}.foot-bottom{margin-top:40px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;font-family:var(--mono);font-size:.7rem;color:var(--muted-2);letter-spacing:.03em}
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}.reveal.in{opacity:1;transform:none}
+
+  @media(max-width:980px){.hero-grid{grid-template-columns:1fr;gap:42px}.patch-grid{grid-template-columns:repeat(2,1fr)}.svc-grid{grid-template-columns:repeat(2,1fr)}.proc-grid{grid-template-columns:repeat(2,1fr)}.why-grid{grid-template-columns:1fr;gap:36px}.contact{grid-template-columns:1fr;padding:42px 31px}}
+  @media(max-width:680px){.wrap{padding:0 20px}.nav-links{display:none}.section{padding:66px 0}.hero{padding:54px 0 42px}.patch-grid{grid-template-columns:1fr}.svc-grid{grid-template-columns:1fr}.proc-grid{grid-template-columns:1fr}.contact{padding:32px 22px}.hero-meta{gap:10px}.field{align-items:flex-start;flex-direction:column}.field .val{text-align:left}.nav-inner{height:64px}}
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="#top">
+      <span class="dot"></span>
+      <span class="name">SHALOM<b> PRO</b></span>
+    </a>
+    <nav class="nav-links">
+      <a href="#platforms">Platforms</a>
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#why">Why us</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <a class="btn btn-primary" href="#contact">Start a project</a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="slash">//</span> AV control &amp; DSP programming</span>
+      <h1>Professional AV control, DSP and <span class="hl">smart room automation.</span></h1>
+      <p class="sub">Colourful, polished and reliable programming for Crestron, AMX, Extron, Q-SYS, Biamp, Bose, ClearOne and custom AV integrations.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#contact">Start a project</a>
+        <a class="btn btn-ghost" href="#platforms">See platforms</a>
+      </div>
+      <div class="hero-meta">
+        <span><i></i> Control systems</span>
+        <span><i></i> Audio DSP</span>
+        <span><i></i> Touch panels &amp; UCIs</span>
+        <span><i></i> Remote commissioning</span>
+      </div>
+    </div>
+
+    <div class="hero-diagram">
+      <div class="diagram-frame">
+        <svg class="diagram" viewBox="0 0 600 540" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Signal flow: AV hardware platforms processed by Shalom Pro programming into working rooms">
+          <defs>
+            <linearGradient id="procg" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#163457"/>
+              <stop offset="1" stop-color="#0d1f33"/>
+            </linearGradient>
+          </defs>
+
+          <!-- connectors: inputs -> processor -->
+          <path id="p1" class="conn" d="M140,80 C195,80 200,270 235,270"/>
+          <path id="p2" class="conn" d="M140,200 C195,200 205,270 235,270"/>
+          <path id="p3" class="conn" d="M140,340 C195,340 205,270 235,270"/>
+          <path id="p4" class="conn" d="M140,460 C195,460 200,270 235,270"/>
+          <!-- connectors: processor -> outputs -->
+          <path id="o1" class="conn" d="M365,270 C405,270 410,95 452,95"/>
+          <path id="o2" class="conn" d="M365,270 C405,270 410,215 452,215"/>
+          <path id="o3" class="conn" d="M365,270 C405,270 410,335 452,335"/>
+          <path id="o4" class="conn" d="M365,270 C405,270 410,455 452,455"/>
+
+          <!-- traveling pulses -->
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="0s"><mpath href="#p1"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="0.5s"><mpath href="#p2"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="1s"><mpath href="#p3"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="1.5s"><mpath href="#p4"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="0.9s"><mpath href="#o1"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="1.4s"><mpath href="#o2"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="0.3s"><mpath href="#o3"/></animateMotion></circle>
+          <circle class="pulse" r="3.2"><animateMotion dur="2.1s" repeatCount="indefinite" begin="1.8s"><mpath href="#o4"/></animateMotion></circle>
+
+          <!-- INPUT CHIPS -->
+          <g>
+            <rect class="node-box" x="8" y="54" width="132" height="52" rx="8"/>
+            <circle class="led svg-led" cx="124" cy="68" r="3"/>
+            <text class="chip-label" x="22" y="78">AMX</text>
+            <text class="chip-sub" x="22" y="93">NETLINX</text>
+          </g>
+          <g>
+            <rect class="node-box" x="8" y="174" width="132" height="52" rx="8"/>
+            <circle class="led svg-led a2" cx="124" cy="188" r="3"/>
+            <text class="chip-label" x="22" y="198">Crestron</text>
+            <text class="chip-sub" x="22" y="213">SIMPL# / C#</text>
+          </g>
+          <g>
+            <rect class="node-box" x="8" y="314" width="132" height="52" rx="8"/>
+            <circle class="led svg-led a3" cx="124" cy="328" r="3"/>
+            <text class="chip-label" x="22" y="338">Q-SYS</text>
+            <text class="chip-sub" x="22" y="353">LUA</text>
+          </g>
+          <g>
+            <rect class="node-box" x="8" y="434" width="132" height="52" rx="8"/>
+            <circle class="led svg-led a4" cx="124" cy="448" r="3"/>
+            <text class="chip-label" x="22" y="458">Biamp</text>
+            <text class="chip-sub" x="22" y="473">TESIRA</text>
+          </g>
+
+          <!-- PROCESSOR -->
+          <rect class="proc-box" x="235" y="220" width="130" height="100" rx="11" fill="url(#procg)"/>
+          <circle class="led-amber amber-led" cx="349" cy="236" r="3.4"/>
+          <text class="proc-title" x="300" y="266" text-anchor="middle">SHALOM PRO</text>
+          <text class="proc-sub" x="300" y="284" text-anchor="middle">// PROGRAM</text>
+          <text class="chip-sub" x="300" y="302" text-anchor="middle">compile · load · commission</text>
+
+          <!-- OUTPUT NODES -->
+          <g>
+            <rect class="node-box" x="452" y="72" width="140" height="46" rx="8"/>
+            <text class="out-label" x="468" y="100">Boardrooms</text>
+          </g>
+          <g>
+            <rect class="node-box" x="452" y="192" width="140" height="46" rx="8"/>
+            <text class="out-label" x="468" y="220">Auditoriums</text>
+          </g>
+          <g>
+            <rect class="node-box" x="452" y="312" width="140" height="46" rx="8"/>
+            <text class="out-label" x="468" y="340">Houses of worship</text>
+          </g>
+          <g>
+            <rect class="node-box" x="452" y="432" width="140" height="46" rx="8"/>
+            <text class="out-label" x="468" y="460">Command centers</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span><b>AMX</b><em>·</em><b>Crestron</b><em>·</em><b>Extron</b><em>·</em><b>Q-SYS</b><em>·</em><b>Biamp</b><em>·</em><b>Bose</b><em>·</em><b>ClearOne</b><em>·</em><b>Custom</b><em>·</em></span>
+    <span><b>AMX</b><em>·</em><b>Crestron</b><em>·</em><b>Extron</b><em>·</em><b>Q-SYS</b><em>·</em><b>Biamp</b><em>·</em><b>Bose</b><em>·</em><b>ClearOne</b><em>·</em><b>Custom</b><em>·</em></span>
+  </div>
+</div>
+
+<!-- PLATFORMS -->
+<section class="section" id="platforms">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="slash">//</span> Platforms</span>
+      <h2>Eight environments. One programmer who speaks all of them.</h2>
+      <p>We're not tied to a single brand. Whatever the integrator spec'd or the room already runs, we write clean code in its native environment.</p>
+    </div>
+    <div class="patch-grid reveal">
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>AMX</h3>
+        <span class="env">NetLinx · Duet</span>
+        <p>Custom NetLinx modules, Duet/SDK device drivers, and dependable touch-panel logic for NX controllers.</p>
+      </div>
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>Crestron</h3>
+        <span class="env">SIMPL · SIMPL# · C#</span>
+        <p>From SIMPL Windows to full SIMPL# Pro and C# programs, plus Crestron Home configuration and scenes.</p>
+      </div>
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>Extron</h3>
+        <span class="env">Global Scripter · Python</span>
+        <p>Global Configurator and Python-based Global Scripter control across IPCP Pro and Pro Series processors.</p>
+      </div>
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>QSC / Q-SYS</h3>
+        <span class="env">Q-SYS · Lua</span>
+        <p>Q-SYS Designer cores, Lua scripting, UCI design, plugins, and end-to-end audio/video/control on one platform.</p>
+      </div>
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>Biamp</h3>
+        <span class="env">Tesira · Devio</span>
+        <p>Tesira DSP configuration, partitioned/combinable rooms, AEC tuning, and Devio &amp; Parlé conferencing setups.</p>
+      </div>
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>Bose Pro</h3>
+        <span class="env">ControlSpace</span>
+        <p>ControlSpace Designer programming for ESP and EX conferencing processors, with PowerMatch amplifier setup.</p>
+      </div>
+      <div class="patch">
+        <span class="jack"></span>
+        <h3>ClearOne</h3>
+        <span class="env">Converge Pro 2</span>
+        <p>Converge Pro 2 configuration, beamforming microphone arrays, and AEC tuning for clean, echo-free conferencing.</p>
+      </div>
+      <div class="patch custom">
+        <span class="jack"></span>
+        <h3>Custom</h3>
+        <span class="env">REST · TCP · Serial</span>
+        <p>Bespoke drivers and integrations — REST/TCP/serial control, APIs, and original logic when no module exists yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section class="section" id="services" style="background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="slash">//</span> Services</span>
+      <h2>What we actually deliver</h2>
+      <p>End to end, or just the part you're stuck on. We work directly with integrators, consultants, and end clients.</p>
+    </div>
+    <div class="svc-grid reveal">
+      <div class="svc">
+        <div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 21h8M12 18v3"/></svg></div>
+        <h3>Control system programming</h3>
+        <p>Source routing, room logic, scheduling, presets and macros — built to match how the room is really used.</p>
+      </div>
+      <div class="svc">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h3l2-7 4 14 2-9 2 4h5"/></svg></div>
+        <h3>Audio DSP programming</h3>
+        <p>Gain structure, mix-minus, AEC, automixing and partitioned rooms tuned for intelligible, feedback-free audio.</p>
+      </div>
+      <div class="svc">
+        <div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg></div>
+        <h3>Touch panel &amp; UCI design</h3>
+        <p>Interfaces a guest can drive without a manual — clear layouts on AMX, Crestron, Q-SYS and tablet UIs.</p>
+      </div>
+      <div class="svc">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3>Commissioning &amp; tuning</h3>
+        <p>On-site or remote load, then test every signal path, verify control, and tune audio before sign-off.</p>
+      </div>
+      <div class="svc">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M21 3v6h-6"/></svg></div>
+        <h3>Remote support &amp; fixes</h3>
+        <p>Remote diagnostics and updates to resolve a glitchy room fast — often without another truck roll.</p>
+      </div>
+      <div class="svc">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M8 7 4 12l4 5M16 7l4 5-4 5M14 4l-4 16"/></svg></div>
+        <h3>Integration &amp; drivers</h3>
+        <p>Lighting, shades, VC platforms, scheduling panels and third-party gear tied together with custom drivers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section class="section" id="process">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="eyebrow"><span class="slash">//</span> How we work</span>
+      <h2>From drawings to a room that just works</h2>
+    </div>
+    <div class="proc-grid reveal">
+      <div class="step">
+        <span class="num">01 — SCOPE</span>
+        <h3>Scope</h3>
+        <p>Review drawings, signal flow and the functional spec so the program matches the room.</p>
+      </div>
+      <div class="step">
+        <span class="num">02 — PROGRAM</span>
+        <h3>Program</h3>
+        <p>Write and structure clean, documented control and DSP code in the native platform.</p>
+      </div>
+      <div class="step">
+        <span class="num">03 — COMMISSION</span>
+        <h3>Commission</h3>
+        <p>Load on site or remotely, test every path, and tune audio until it's signed off.</p>
+      </div>
+      <div class="step">
+        <span class="num">04 — SUPPORT</span>
+        <h3>Support</h3>
+        <p>Hand over documentation, then stay on call for updates as the room changes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="section" id="why" style="background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap why-grid">
+    <div class="reveal">
+      <span class="eyebrow"><span class="slash">//</span> Why Shalom Pro</span>
+      <h2 style="font-family:var(--display);font-weight:600;font-size:clamp(1.7rem,3.4vw,2.7rem);letter-spacing:-.015em;margin:14px 0 28px;line-height:1.08">Code you can hand to the next person.</h2>
+      <div class="why-list">
+        <div class="why-item">
+          <span class="k">[01]</span>
+          <div><h3>Platform-agnostic</h3><p>One partner for every brand on the rack — no juggling separate specialists per system.</p></div>
+        </div>
+        <div class="why-item">
+          <span class="k">[02]</span>
+          <div><h3>Maintainable by design</h3><p>Commented, well-structured, version-controlled programs the next tech can actually read.</p></div>
+        </div>
+        <div class="why-item">
+          <span class="k">[03]</span>
+          <div><h3>Remote-ready</h3><p>Secure remote commissioning and support to cut downtime and unnecessary site visits.</p></div>
+        </div>
+        <div class="why-item">
+          <span class="k">[04]</span>
+          <div><h3>Built for integrators</h3><p>White-label work, clear hand-offs, and turnaround that respects your install deadline.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="why-panel reveal">
+      <span class="tag">room_logic.lua</span>
+      <div class="code-line">
+        <span class="c">-- combinable boardroom A/B</span><br/>
+        <span class="kw">function</span> <span class="fn">Room.combine</span>(state)<br/>
+        &nbsp;&nbsp;<span class="kw">if</span> state == <span class="str">"open"</span> <span class="kw">then</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">DSP.link</span>(<span class="str">"A"</span>, <span class="str">"B"</span>)<br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">UI.show</span>(<span class="str">"combined"</span>)<br/>
+        &nbsp;&nbsp;<span class="kw">else</span><br/>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">DSP.split</span>()<br/>
+        &nbsp;&nbsp;<span class="kw">end</span><br/>
+        <span class="kw">end</span><br/>
+        <span class="c">-- AEC + automix verified ✓</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="section" id="contact">
+  <div class="wrap">
+    <div class="contact reveal">
+      <div>
+        <span class="eyebrow"><span class="slash">//</span> Start a project</span>
+        <h2>Got a room that needs programming?</h2>
+        <p>Send the platform, the drawings, and what the room needs to do. We'll come back with an approach and a timeline.</p>
+        <div class="hero-cta">
+          <a class="btn btn-primary" href="mailto:hello@shalompro.com?subject=AV%20programming%20enquiry">Email the team</a>
+          <a class="btn btn-ghost" href="#platforms">Review platforms</a>
+        </div>
+      </div>
+      <div class="contact-actions">
+        <div class="field"><span class="lab">Email</span><a class="val" href="mailto:hello@shalompro.com">hello@shalompro.com</a></div>
+        <div class="field"><span class="lab">Phone</span><a class="val" href="tel:+0000000000">+00 000 000 0000</a></div>
+        <div class="field"><span class="lab">Coverage</span><span class="val">On-site &amp; remote</span></div>
+        <div class="field"><span class="lab">For</span><span class="val">Integrators · consultants · clients</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <span class="name">SHALOM<b> PRO</b> SOFTWARE SOLUTIONS</span>
+        <p>Independent programming for the AV industry — control systems, audio DSP, and custom integrations.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h4>Platforms</h4>
+          <a href="#platforms">AMX</a>
+          <a href="#platforms">Crestron</a>
+          <a href="#platforms">Extron</a>
+          <a href="#platforms">Q-SYS</a>
+        </div>
+        <div class="foot-col">
+          <h4>More</h4>
+          <a href="#platforms">Biamp</a>
+          <a href="#platforms">Bose</a>
+          <a href="#platforms">ClearOne</a>
+          <a href="#platforms">Custom</a>
+        </div>
+        <div class="foot-col">
+          <h4>Company</h4>
+          <a href="#services">Services</a>
+          <a href="#process">Process</a>
+          <a href="#why">Why us</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Shalom Pro Software Solutions. All rights reserved.</span>
+      <span>Brand names are trademarks of their respective owners. Shalom Pro is an independent provider.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // restrained reveal-on-scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
